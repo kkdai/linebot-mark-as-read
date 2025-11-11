@@ -38,6 +38,61 @@ You can choose [Heroku](https://www.heroku.com/) or [Render](http://render.com/)
 
 It all done.
 
+Features
+=============
+
+### Mark as Read API
+
+This bot implements LINE's new "Mark as Read" feature, allowing the bot to mark messages as read when users request it.
+
+#### How it works:
+
+1. **User sends a message** (text or sticker)
+2. **Bot replies with a Quick Reply button** labeled "Mark as Read"
+3. **User clicks the button**
+4. **Bot marks the message as read** using the `MarkMessagesAsReadByToken` API
+5. **User sees read indicator** in the LINE chat
+
+#### Implementation Details:
+
+- Uses `MarkMessagesAsReadByToken` API from LINE Messaging API v8.18.0
+- Extracts `markAsReadToken` from incoming message events (available in `TextMessageContent`, `StickerMessageContent`, etc.)
+- Stores the token in Quick Reply button's postback data
+- Handles `PostbackEvent` to call the Mark as Read API
+
+#### Code References:
+
+- **Quick Reply Creation**: `main.go:64-75` (Text), `main.go:102-113` (Sticker)
+- **Token Extraction**: `main.go:59` (Text), `main.go:97` (Sticker)
+- **Postback Handler**: `main.go:142-170`
+- **API Call**: `main.go:159-163`
+
+#### Requirements:
+
+- LINE Bot SDK v8.18.0 or higher
+- Go 1.24 or higher
+
+#### API Reference:
+
+- **LINE Official Documentation**: [Mark messages as read](https://developers.line.biz/en/reference/messaging-api/#mark-as-read-request-body)
+- **SDK Method**: `bot.MarkMessagesAsReadByToken(request)`
+- **Request Structure**:
+  ```go
+  &messaging_api.MarkMessagesAsReadByTokenRequest{
+      MarkAsReadToken: markAsReadToken,
+  }
+  ```
+
+#### Testing:
+
+1. Deploy your bot to Heroku or Render
+2. Add the bot as a friend on LINE
+3. Send a text message to the bot
+4. You'll receive an echo reply with a "Mark as Read" Quick Reply button
+5. Click the button
+6. Check the bot logs - you should see "Successfully marked messages as read using token"
+7. The message will be marked as read in your LINE chat
+
 ### Video Tutorial
 
 - [How to deploy LINE BotTemplate](https://www.youtube.com/watch?v=0BIknEz1f8k)
