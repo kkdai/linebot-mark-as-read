@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/line/line-bot-sdk-go/v8/linebot/messaging_api"
@@ -55,12 +56,32 @@ func main() {
 			case webhook.MessageEvent:
 				switch message := e.Message.(type) {
 				case webhook.TextMessageContent:
+					// Get markAsReadToken from the message
+					markAsReadToken := message.MarkAsReadToken
+					log.Printf("Received text message with markAsReadToken: %s\n", markAsReadToken)
+
+					// Create Quick Reply with "Mark as Read" button
+					// Store the markAsReadToken in the postback data
+					quickReply := &messaging_api.QuickReply{
+						Items: []messaging_api.QuickReplyItem{
+							{
+								Type: "action",
+								Action: &messaging_api.PostbackAction{
+									Label:       "Mark as Read",
+									Data:        fmt.Sprintf("action=markasread&token=%s", markAsReadToken),
+									DisplayText: "Marked as read",
+								},
+							},
+						},
+					}
+
 					if _, err = bot.ReplyMessage(
 						&messaging_api.ReplyMessageRequest{
 							ReplyToken: e.ReplyToken,
 							Messages: []messaging_api.MessageInterface{
 								messaging_api.TextMessage{
-									Text: message.Text,
+									Text:       message.Text,
+									QuickReply: quickReply,
 								},
 							},
 						},
@@ -72,12 +93,33 @@ func main() {
 				case webhook.StickerMessageContent:
 					replyMessage := fmt.Sprintf(
 						"貼圖訊息: sticker id is %s, stickerResourceType is %s", message.StickerId, message.StickerResourceType)
+
+					// Get markAsReadToken from the message
+					markAsReadToken := message.MarkAsReadToken
+					log.Printf("Received sticker message with markAsReadToken: %s\n", markAsReadToken)
+
+					// Create Quick Reply with "Mark as Read" button
+					// Store the markAsReadToken in the postback data
+					quickReply := &messaging_api.QuickReply{
+						Items: []messaging_api.QuickReplyItem{
+							{
+								Type: "action",
+								Action: &messaging_api.PostbackAction{
+									Label:       "Mark as Read",
+									Data:        fmt.Sprintf("action=markasread&token=%s", markAsReadToken),
+									DisplayText: "Marked as read",
+								},
+							},
+						},
+					}
+
 					if _, err = bot.ReplyMessage(
 						&messaging_api.ReplyMessageRequest{
 							ReplyToken: e.ReplyToken,
 							Messages: []messaging_api.MessageInterface{
 								messaging_api.TextMessage{
-									Text: replyMessage,
+									Text:       replyMessage,
+									QuickReply: quickReply,
 								},
 							},
 						}); err != nil {
@@ -95,6 +137,35 @@ func main() {
 					log.Printf("Beacon event: %s\n", e.Source.(webhook.UserSource).UserId)
 				default:
 					log.Printf("Unsupported message content: %T\n", e.Message)
+				}
+			case webhook.PostbackEvent:
+				// Handle Postback event when user clicks "Mark as Read" button
+				log.Printf("Postback event: data=%s\n", e.Postback.Data)
+
+				// Parse the postback data to extract action and token
+				// Format: "action=markasread&token=xxxxx"
+				values, err := url.ParseQuery(e.Postback.Data)
+				if err != nil {
+					log.Printf("Failed to parse postback data: %v\n", err)
+				} else {
+					action := values.Get("action")
+					markAsReadToken := values.Get("token")
+
+					if action == "markasread" && markAsReadToken != "" {
+						log.Printf("Marking messages as read with token: %s\n", markAsReadToken)
+
+						// Call Mark as Read By Token API
+						_, err := bot.MarkMessagesAsReadByToken(
+							&messaging_api.MarkMessagesAsReadByTokenRequest{
+								MarkAsReadToken: markAsReadToken,
+							},
+						)
+						if err != nil {
+							log.Printf("Failed to mark messages as read: %v\n", err)
+						} else {
+							log.Println("Successfully marked messages as read using token")
+						}
+					}
 				}
 			default:
 				log.Printf("Unsupported message: %T\n", event)
