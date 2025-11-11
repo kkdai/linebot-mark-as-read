@@ -1,4 +1,4 @@
-module github.com/kkdai/LineBotTemplate
+module github.com/kkdai/linebot-mark-as-read
 
 // +heroku goVersion go1.21
 go 1.24
