@@ -9,18 +9,18 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o server .
 
 FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
 
-ENV PORT=8080
+ENV PORT=5000
 
 COPY --from=builder /app/server .
 
 USER nonroot:nonroot
 
-EXPOSE 8080
+EXPOSE 5000
 
 ENTRYPOINT ["/app/server"]
