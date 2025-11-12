@@ -1,7 +1,7 @@
-LINE BotTemplate: A simple Golang LINE Bot Template for LINE Bot API
+LINE Bot Template: A simple Golang LINE Bot for Mark As Read API
 ==============
 
- [![GoDoc](https://godoc.org/github.com/kkdai/LineBotTemplate.svg?status.svg)](https://godoc.org/github.com/kkdai/LineBotTemplate) ![Go](https://github.com/kkdai/LineBotTemplate/workflows/Go/badge.svg) [![goreportcard.com](https://goreportcard.com/badge/github.com/kkdai/LineBotTemplate)](https://goreportcard.com/report/github.com/kkdai/LineBotTemplate)
+ [![GoDoc](https://godoc.org/github.com/kkdai/linebot-mark-as-read.svg?status.svg)](https://godoc.org/github.com/kkdai/linebot-mark-as-read) ![Go](https://github.com/kkdai/linebot-mark-as-read/workflows/Go/badge.svg) [![goreportcard.com](https://goreportcard.com/badge/github.com/kkdai/linebot-mark-as-read)](https://goreportcard.com/report/github.com/kkdai/linebot-mark-as-read)
 
 Installation and Usage
 =============
